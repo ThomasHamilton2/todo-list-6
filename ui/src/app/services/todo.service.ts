@@ -17,14 +17,14 @@ export class TodoService {
   }
 
   addTodo(todo: Todo) {
-    return this.http.post(environment.gateway + this.addTodoUrl, todo);
+    return this.http.post(environment.gateway + this.getTodoListUrl, todo);
   }
 
   updateTodo(todo: Todo) {
-    return this.http.put(environment.gateway + this.updateTodoUrl, todo);
+    return this.http.put(environment.gateway + this.getTodoListUrl, todo);
   }
 
   deleteTodo(todo: Todo) {
-    return this.http.delete(environment.gateway + this.deleteTodoUrl + todo.id);
+    return this.http.delete(environment.gateway + this.getTodoListUrl + '?id=' + todo.id);
   }
 }

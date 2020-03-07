@@ -16,7 +16,11 @@ func SetUpRouting() *http.ServeMux {
 	// r.GET("/samples", todoHandler.GetSamples)
 
 	mux := http.NewServeMux()
-	mux.HandleFunc("/samples", todoHandler.GetSamples)
+	mux.HandleFunc("/samples", todoHandler.GetSamples).Methods("GET")
+	mux.HandleFunc("/samples", todoHandler.Delete).Methods("DELETE")
+	mux.HandleFunc("/samples", todoHandler.AddTodo).Methods("POST")
+	// mux.HandleFunc("/addTodo", todoHandler.addTodo)
+	// mux.HandleFunc("/updateTodo", todoHandler.addTodo)
 
 	return mux
 	// return r
