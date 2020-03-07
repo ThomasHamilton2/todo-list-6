@@ -1,0 +1,41 @@
+<ng-container *ngIf="(todoList$$ | async).length; else loading">
+    <!-- <mat-card *ngFor="let todo of todoList$$ | async">
+      <button *ngIf="!todo.complete" class="btn btn-secondary" (click)="toggleTodo(todo)">
+        <i class="fa fa-check"></i>
+      </button>
+      <p>{{ todo.title }}</p>
+    </mat-card> -->
+    <!-- <mat-nav-list>
+      <mat-list-item *ngFor="let todo of todoList$$ | async">
+         <button mat-icon-button (click)="toggleTodo(todo)">
+            <mat-icon>info</mat-icon>
+         </button>
+         <a matLine href="...">{{ link }}</a>
+      </mat-list-item>
+    </mat-nav-list> -->
+    <table>
+      <tr>
+        <th>Complete</th>
+        <th>Name</th>
+        <th>Delete</th>
+      </tr>
+      <ng-container *ngFor="let todo of todoList$$ | async">
+          <tr>
+            <td>
+              <input type="checkbox" [checked]="todo.complete" (click)="toggleTodo(todo)">
+            </td>
+            <td>
+              <p>{{todo.title}}</p>
+            </td>
+            <td>
+              <input type="checkbox" (click)="deleteTodo(todo)">
+            </td>
+          </tr>
+      </ng-container>
+    </table>
+  </ng-container>
+  <ng-template #loading>
+    <div class="loading">
+      <mat-spinner></mat-spinner>
+    </div>
+  </ng-template>
