@@ -7,8 +7,10 @@
 </div>
 <ng-container *ngIf="(todoList$$ | async).length; else loading">
   <mat-card *ngFor="let todo of todoList$$ | async">
-    <mat-checkbox [checked]="todo.complete" (click)="toggleTodo(todo)" color="primary">
-      {{todo.title}}
+    <mat-checkbox [checked]="todo.complete" (change)="toggleTodo(todo)" color="primary">
+      <span class="checkboxText">
+        {{todo.title}}
+      </span>
     </mat-checkbox>
     <button mat-button (click)="deleteTodo(todo)" style="float: right;">
       <img src="assets/baseline_delete_outline_black_18dp.png">

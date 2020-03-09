@@ -12,3 +12,24 @@
 h1 {
     line-height: 70px;
 }
+
+#topDiv button {
+    margin-left: 10px;
+}
+
+mat-card {
+    display: flex;
+}
+
+mat-card mat-checkbox {
+    flex: 4;
+}
+
+mat-card button {
+    flex: 1;
+    max-width: 50px;
+}
+
+.checkboxText {
+    white-space: normal !important;
+}

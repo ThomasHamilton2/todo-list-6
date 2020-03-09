@@ -25,12 +25,12 @@ export class TodoComponent implements OnInit {
   }
 
   toggleTodo(todo: Todo) {
-    //todo thomas - have to toggle complete, but I think mat-checkbox
-    //is trying to do the same thing after this function ends
-    todo.complete = !todo.complete;
-    this.todoService.updateTodo(todo).subscribe(() => {
+    //todo thomas - todo.complete is not updated before this method is called
+    //copy into another object and send that one with updated Complete property
+    var copy = todo;
+    copy.complete = !copy.complete;
+    this.todoService.updateTodo(copy).subscribe(() => {
     });
-    todo.complete = !todo.complete;
   }
 
   deleteTodo(todo: Todo) {
