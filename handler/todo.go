@@ -7,13 +7,14 @@ import (
 
 	"github.com/ThomasHamilton2/todo-list-6/db"
 	"github.com/ThomasHamilton2/todo-list-6/schema"
-	"github.com/ThomasHamilton2/todo-list-6/service"
 )
 
 type todoHandler struct {
-	samples *db.MySQL
+	repository *db.MySQL
 }
 
+//Todo - all requests from /Todo are sent here, then sent to different
+//functions depending on Request Method
 func (handler *todoHandler) Todo(w http.ResponseWriter, r *http.Request) {
 	switch (*r).Method {
 	case "GET":
@@ -31,9 +32,7 @@ func (handler *todoHandler) Todo(w http.ResponseWriter, r *http.Request) {
 
 //TodoGet handles the Todo GET request
 func TodoGet(w http.ResponseWriter, r *http.Request, handler *todoHandler) {
-	ctx := db.SetRepository(r.Context(), handler.samples)
-	// setupResponse(&w, r)
-	todoList, err := service.GetAll(ctx)
+	todoList, err := handler.repository.GetAll()
 	if err != nil {
 		responseError(w, http.StatusInternalServerError, err.Error())
 		return
@@ -44,8 +43,8 @@ func TodoGet(w http.ResponseWriter, r *http.Request, handler *todoHandler) {
 
 //TodoDelete handles the Todo DELETE request
 func TodoDelete(w http.ResponseWriter, r *http.Request, handler *todoHandler) {
-	ctx := db.SetRepository(r.Context(), handler.samples)
-
+	//ID of Todo to remove is stored in the URL
+	//Retrieve and convert to int
 	idStr := r.URL.Query().Get("id")
 	id, strErr := strconv.Atoi(idStr)
 	if strErr != nil {
@@ -53,7 +52,7 @@ func TodoDelete(w http.ResponseWriter, r *http.Request, handler *todoHandler) {
 		return
 	}
 
-	err := service.Delete(ctx, id)
+	err := handler.repository.Delete(id)
 	if err != nil {
 		responseError(w, http.StatusInternalServerError, err.Error())
 		return
@@ -63,8 +62,8 @@ func TodoDelete(w http.ResponseWriter, r *http.Request, handler *todoHandler) {
 
 //TodoPost handles the Todo POST request
 func TodoPost(w http.ResponseWriter, r *http.Request, handler *todoHandler) {
-	ctx := db.SetRepository(r.Context(), handler.samples)
-
+	//Todo data is stored in the request body
+	//Decode into Todo object and insert into DB
 	var p schema.Todo
 	decodeErr := json.NewDecoder(r.Body).Decode(&p)
 	if decodeErr != nil {
@@ -72,7 +71,7 @@ func TodoPost(w http.ResponseWriter, r *http.Request, handler *todoHandler) {
 		return
 	}
 
-	id, err := service.Insert(ctx, &p)
+	id, err := handler.repository.Insert(&p)
 	if err != nil {
 		responseError(w, http.StatusInternalServerError, err.Error())
 		return
@@ -83,8 +82,8 @@ func TodoPost(w http.ResponseWriter, r *http.Request, handler *todoHandler) {
 
 //TodoPut handles the Todo PUT request
 func TodoPut(w http.ResponseWriter, r *http.Request, handler *todoHandler) {
-	ctx := db.SetRepository(r.Context(), handler.samples)
-
+	//Todo data is stored in the request body
+	//Decode into Todo object and update in DB
 	var p schema.Todo
 	decodeErr := json.NewDecoder(r.Body).Decode(&p)
 	if decodeErr != nil {
@@ -92,7 +91,7 @@ func TodoPut(w http.ResponseWriter, r *http.Request, handler *todoHandler) {
 		return
 	}
 
-	err := service.Update(ctx, &p)
+	err := handler.repository.Update(&p)
 	if err != nil {
 		responseError(w, http.StatusInternalServerError, err.Error())
 		return

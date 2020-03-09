@@ -12,6 +12,7 @@ import (
 )
 
 func main() {
+	//first, connect to MySQL db
 	var mySQL *db.MySQL
 	var err error
 	mySQL, err = db.ConnectMySQL()
@@ -21,6 +22,8 @@ func main() {
 		panic("mySQL is nil")
 	}
 
+	//set cors to allow requests to come from angular
+	//todo thomas - find better option than accepting all origins
 	c := cors.New(cors.Options{
 		AllowedOrigins:   []string{"*"},
 		AllowCredentials: true,
@@ -29,11 +32,15 @@ func main() {
 		Debug: true,
 	})
 
+	//set up routes and attach(?) db instance
 	mux := handler.SetUpRouting(mySQL)
 
 	fmt.Println("http://localhost:8080")
 
+	//attach cors options from above to the handler
 	handler := cors.Default().Handler(mux)
 	handler = c.Handler(handler)
+
+	//serve on :8080
 	http.ListenAndServe(":8080", handler)
 }

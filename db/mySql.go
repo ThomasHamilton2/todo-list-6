@@ -20,6 +20,7 @@ func (m *MySQL) Close() {
 
 //Insert inserts a new Todo object into the database
 func (m *MySQL) Insert(todo *schema.Todo) (int, error) {
+	//Insert Title and Complete, ID is auto-populated
 	res, err := m.DB.Exec(`INSERT INTO Todo (Title, Complete) VALUES (?,?)`, todo.Title, todo.Complete)
 
 	if err != nil {
@@ -27,6 +28,7 @@ func (m *MySQL) Insert(todo *schema.Todo) (int, error) {
 		return -1, err
 	}
 
+	//Use MySQL LastInsertId to get ID of newly added Todo object
 	id, err := res.LastInsertId()
 	if err != nil {
 		println("Error:", err.Error())
@@ -37,7 +39,7 @@ func (m *MySQL) Insert(todo *schema.Todo) (int, error) {
 	return int(id), nil
 }
 
-//Update updatesTodo object
+//Update updates Todo object
 func (m *MySQL) Update(todo *schema.Todo) error {
 	var stmt = `UPDATE Todo SET Title = ?, Complete = ? WHERE ID = ?`
 	_, err := m.DB.Exec(stmt, todo.Title, todo.Complete, todo.ID)
@@ -88,7 +90,6 @@ func (m *MySQL) GetAll() ([]schema.Todo, error) {
 
 //ConnectMySQL connects to the MySQL database
 func ConnectMySQL() (*MySQL, error) {
-	fmt.Println("made it to ConnectMySQL")
 	db, err := sql.Open("mysql", "root:admin@tcp(localhost:3306)/Todo_db")
 	if err != nil {
 		return nil, err
