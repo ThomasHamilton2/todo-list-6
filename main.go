@@ -7,7 +7,6 @@ import (
 	"github.com/ThomasHamilton2/todo-list-6/db"
 	"github.com/ThomasHamilton2/todo-list-6/handler"
 
-	_ "github.com/go-sql-driver/mysql"
 	"github.com/rs/cors"
 )
 
