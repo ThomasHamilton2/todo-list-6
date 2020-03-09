@@ -4,38 +4,17 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/ThomasHamilton2/todo-list/handler"
-	"github.com/ThomasHamilton2/todo-list/mysqlpk"
+	"github.com/ThomasHamilton2/todo-list-6/db"
+	"github.com/ThomasHamilton2/todo-list-6/handler"
 
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/rs/cors"
 )
 
 func main() {
-
-	// db, err := sql.Open("mysql", "root:admin@tcp(localhost:3306)/Todo_db")
-	// if err != nil {
-	// 	panic(err.Error()) // Just for example purpose. You should use proper error handling instead of panic
-	// }
-	// fmt.Println("made it this far")
-
-	// id := 1
-	// var col string
-	// sqlStatement := `SELECT Title FROM Todo WHERE ID=?`
-	// row := db.QueryRow(sqlStatement, id)
-	// err2 := row.Scan(&col)
-	// if err2 != nil {
-	// 	if err2 == sql.ErrNoRows {
-	// 		fmt.Println("Zero rows found")
-	// 	} else {
-	// 		panic(err2)
-	// 	}
-	// }
-	// fmt.Println("col" + col)
-
-	var mySQL *mysqlpk.MySQL
+	var mySQL *db.MySQL
 	var err error
-	mySQL, err = mysqlpk.ConnectMySQL()
+	mySQL, err = db.ConnectMySQL()
 	if err != nil {
 		panic(err)
 	} else if mySQL == nil {
@@ -46,7 +25,7 @@ func main() {
 		AllowedOrigins:   []string{"*"},
 		AllowCredentials: true,
 		AllowedMethods:   []string{"DELETE", "GET", "OPTIONS", "POST", "PUT"},
-		// Enable Debugging for testing, consider disabling in production
+		// todo thomas - possibly remove for prod
 		Debug: true,
 	})
 

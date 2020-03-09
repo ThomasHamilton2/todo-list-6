@@ -1,38 +1,19 @@
+<div id="topDiv">
+  <h1>Todo List</h1>  
+  <mat-form-field appearance="legacy">
+    <input matInput [(ngModel)]="newTodoTitle" placeholder="Ex: Learn Go">
+  </mat-form-field>
+  <button mat-raised-button color="primary" (click)="addTodo()">Add</button>
+</div>
 <ng-container *ngIf="(todoList$$ | async).length; else loading">
-    <!-- <mat-card *ngFor="let todo of todoList$$ | async">
-      <button *ngIf="!todo.complete" class="btn btn-secondary" (click)="toggleTodo(todo)">
-        <i class="fa fa-check"></i>
-      </button>
-      <p>{{ todo.title }}</p>
-    </mat-card> -->
-    <!-- <mat-nav-list>
-      <mat-list-item *ngFor="let todo of todoList$$ | async">
-         <button mat-icon-button (click)="toggleTodo(todo)">
-            <mat-icon>info</mat-icon>
-         </button>
-         <a matLine href="...">{{ link }}</a>
-      </mat-list-item>
-    </mat-nav-list> -->
-    <table>
-      <tr>
-        <th>Complete</th>
-        <th>Name</th>
-        <th>Delete</th>
-      </tr>
-      <ng-container *ngFor="let todo of todoList$$ | async">
-          <tr>
-            <td>
-              <input type="checkbox" [checked]="todo.complete" (click)="toggleTodo(todo)">
-            </td>
-            <td>
-              <p>{{todo.title}}</p>
-            </td>
-            <td>
-              <input type="checkbox" (click)="deleteTodo(todo)">
-            </td>
-          </tr>
-      </ng-container>
-    </table>
+  <mat-card *ngFor="let todo of todoList$$ | async">
+    <mat-checkbox [checked]="todo.complete" (click)="toggleTodo(todo)" color="primary">
+      {{todo.title}}
+    </mat-checkbox>
+    <button mat-button (click)="deleteTodo(todo)" style="float: right;">
+      <img src="assets/baseline_delete_outline_black_18dp.png">
+    </button>
+  </mat-card>
   </ng-container>
   <ng-template #loading>
     <div class="loading">

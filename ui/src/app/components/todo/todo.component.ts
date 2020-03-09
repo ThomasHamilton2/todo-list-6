@@ -10,8 +10,7 @@ import { TodoService } from '../../services/todo.service'
   providers: [TodoService]
 })
 export class TodoComponent implements OnInit {
-  // public completedList$$ = new BehaviorSubject<Todo[]>([]);
-  // public incompleteList$$ = new BehaviorSubject<Todo[]>([]);
+  newTodoTitle: string = '';
   public todoList$$ = new BehaviorSubject<Todo[]>([]);
 
   constructor(private todoService: TodoService) { }
@@ -23,30 +22,29 @@ export class TodoComponent implements OnInit {
   private async getTodoList() {
     const todoList = await this.todoService.getTodoList().toPromise();
     this.todoList$$.next(todoList);
-    // this.completedList$$.next(todoList.filter(function (todo) {
-    //   return todo.complete === true;
-    // }));
-    // this.incompleteList$$.next(todoList.filter(function (todo) {
-    //   return todo.complete === false;
-    // }));
   }
 
-  // completeTodo(todo: Todo) {
-  //   this.todoService.completeTodo(todo).subscribe(() => {
-  //     this.getTodoList();
-  //   });
-  // }
-
   toggleTodo(todo: Todo) {
-    if(todo.complete) {
-      this.todoService.updateTodo(todo).subscribe(() => {
-        this.getTodoList();
-      });
-    }
+    //todo thomas - have to toggle complete, but I think mat-checkbox
+    //is trying to do the same thing after this function ends
+    todo.complete = !todo.complete;
+    this.todoService.updateTodo(todo).subscribe(() => {
+    });
+    todo.complete = !todo.complete;
   }
 
   deleteTodo(todo: Todo) {
     this.todoService.deleteTodo(todo).subscribe(() => {
+      this.getTodoList();
+    });
+  }
+
+  addTodo() {
+    var newTodo = new Todo;
+    newTodo.complete = false;
+    newTodo.title = this.newTodoTitle;
+    this.todoService.addTodo(newTodo).subscribe(() => {
+      this.newTodoTitle = "";
       this.getTodoList();
     });
   }

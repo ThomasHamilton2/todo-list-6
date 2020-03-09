@@ -5,18 +5,19 @@ import { AppComponent } from './app.component';
 import { TodoComponent } from './components/todo/todo.component';
 
 import { MatCardModule } from '@angular/material/card';
-import { MatIconModule } from '@angular/material/icon';
-import { MatListModule } from '@angular/material/list';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-// import { AppRoutingModule } from './app-routing.module';
 import { Route, RouterModule } from '@angular/router';
 import { HttpClientModule } from '@angular/common/http';
+import { FormsModule } from '@angular/forms';
+import {MatCheckboxModule} from '@angular/material/checkbox';
+import {MatButtonModule} from '@angular/material/button';
+import {MatFormFieldModule} from '@angular/material/form-field';
+import {MatInputModule} from '@angular/material/input';
 
 const ROUTES: Route[] = [
   { path: '', component: TodoComponent},
   { path: 'todo', component: TodoComponent},
-  // { path: 'home', component: HomeComponent}
 ]
 
 @NgModule({
@@ -29,9 +30,13 @@ const ROUTES: Route[] = [
     BrowserAnimationsModule,
     MatCardModule,
     MatProgressSpinnerModule,
-    // AppRoutingModule,
     RouterModule.forRoot(ROUTES),
-    HttpClientModule
+    HttpClientModule,
+    FormsModule,
+    MatCheckboxModule,
+    MatButtonModule,
+    MatFormFieldModule,
+    MatInputModule
   ],
   providers: [],
   bootstrap: [AppComponent]

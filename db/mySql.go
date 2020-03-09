@@ -1,10 +1,10 @@
-package mysqlpk
+package db
 
 import (
 	"database/sql"
 	"fmt"
 
-	"github.com/ThomasHamilton2/todo-list/schema"
+	"github.com/ThomasHamilton2/todo-list-6/schema"
 	_ "github.com/go-sql-driver/mysql" //handles MySQL database connection
 )
 
@@ -20,35 +20,41 @@ func (m *MySQL) Close() {
 
 //Insert inserts a new Todo object into the database
 func (m *MySQL) Insert(todo *schema.Todo) (int, error) {
-	query := `
-        INSERT INTO Todo (Title, Complete)
-        VALUES (?, ?)
-        RETURNING ID;
-    `
+	res, err := m.DB.Exec(`INSERT INTO Todo (Title, Complete) VALUES (?,?)`, todo.Title, todo.Complete)
 
-	rows, err := m.DB.Query(query, todo.Title, todo.Complete)
 	if err != nil {
+		println("Exec err:", err.Error())
 		return -1, err
 	}
 
-	var id int
-	for rows.Next() {
-		if err := rows.Scan(&id); err != nil {
-			return -1, err
-		}
+	id, err := res.LastInsertId()
+	if err != nil {
+		println("Error:", err.Error())
+		return -1, err
 	}
 
-	return id, nil
+	println("LastInsertId:", id)
+	return int(id), nil
+}
+
+//Update updatesTodo object
+func (m *MySQL) Update(todo *schema.Todo) error {
+	var stmt = `UPDATE Todo SET Title = ?, Complete = ? WHERE ID = ?`
+	_, err := m.DB.Exec(stmt, todo.Title, todo.Complete, todo.ID)
+
+	if err != nil {
+		println("Exec err:", err.Error())
+		return err
+	}
+
+	return nil
 }
 
 //Delete deletes Todo object from database
 func (m *MySQL) Delete(id int) error {
-	query := `
-        DELETE FROM Todo
-        WHERE ID = ?;
-    `
-
-	if _, err := m.DB.Exec(query, id); err != nil {
+	var stmt = `DELETE FROM Todo WHERE ID = ?`
+	if _, err := m.DB.Exec(stmt, id); err != nil {
+		println("Exec err:", err.Error())
 		return err
 	}
 
@@ -86,7 +92,6 @@ func ConnectMySQL() (*MySQL, error) {
 	db, err := sql.Open("mysql", "root:admin@tcp(localhost:3306)/Todo_db")
 	if err != nil {
 		return nil, err
-		// panic(err.Error()) // Just for example purpose. You should use proper error handling instead of panic
 	}
 	fmt.Println("connected to mySql")
 

@@ -2,72 +2,103 @@ package handler
 
 import (
 	"encoding/json"
-	"fmt"
-	"log"
 	"net/http"
+	"strconv"
 
-	"github.com/ThomasHamilton2/todo-list/db"
-	"github.com/ThomasHamilton2/todo-list/service"
+	"github.com/ThomasHamilton2/todo-list-6/db"
+	"github.com/ThomasHamilton2/todo-list-6/schema"
+	"github.com/ThomasHamilton2/todo-list-6/service"
 )
 
 type todoHandler struct {
-	samples *db.Sample
+	samples *db.MySQL
 }
 
-func (handler *todoHandler) GetSamples(w http.ResponseWriter, r *http.Request) {
-	log.Println("---------show something---------")
-	if r.Method == "Delete" {
-		id, ok := r.URL.Query()["id"]
-		err := service.Delete(ctx, id)
-		responseOk(w, nil)
-	}
-	else {
-		ctx := db.SetRepository(r.Context(), handler.samples)
-		// setupResponse(&w, r)
-		todoList, err := service.GetAll(ctx)
-		if err != nil {
-			responseError(w, http.StatusInternalServerError, err.Error())
-			return
-		}
-	
-		responseOk(w, todoList)
+func (handler *todoHandler) Todo(w http.ResponseWriter, r *http.Request) {
+	switch (*r).Method {
+	case "GET":
+		TodoGet(w, r, handler)
+	case "POST":
+		TodoPost(w, r, handler)
+	case "PUT":
+		TodoPut(w, r, handler)
+	case "DELETE":
+		TodoDelete(w, r, handler)
+	default:
+		responseError(w, http.StatusMethodNotAllowed, "Status method not allowed")
 	}
 }
 
-func (handler *todoHandler) Delete(w http.ResponseWriter, req *http.Request) {
-	fmt.Println("made it inside the delete method")
-	// setupResponse(&w, req)
-	if (*req).Method == "OPTIONS" {
+//TodoGet handles the Todo GET request
+func TodoGet(w http.ResponseWriter, r *http.Request, handler *todoHandler) {
+	ctx := db.SetRepository(r.Context(), handler.samples)
+	// setupResponse(&w, r)
+	todoList, err := service.GetAll(ctx)
+	if err != nil {
+		responseError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
-	id, ok := r.URL.Query()["id"]
+
+	responseOk(w, todoList)
+}
+
+//TodoDelete handles the Todo DELETE request
+func TodoDelete(w http.ResponseWriter, r *http.Request, handler *todoHandler) {
+	ctx := db.SetRepository(r.Context(), handler.samples)
+
+	idStr := r.URL.Query().Get("id")
+	id, strErr := strconv.Atoi(idStr)
+	if strErr != nil {
+		responseError(w, http.StatusInternalServerError, strErr.Error())
+		return
+	}
+
 	err := service.Delete(ctx, id)
 	if err != nil {
 		responseError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
-
 	responseOk(w, nil)
-
 }
 
-func (handler *todoHandler) AddTodo(w http.ResponseWriter, req *http.Request) {
-	fmt.Println("made it inside the add method")
-	// setupResponse(&w, req)
-	if (*req).Method == "OPTIONS" {
+//TodoPost handles the Todo POST request
+func TodoPost(w http.ResponseWriter, r *http.Request, handler *todoHandler) {
+	ctx := db.SetRepository(r.Context(), handler.samples)
+
+	var p schema.Todo
+	decodeErr := json.NewDecoder(r.Body).Decode(&p)
+	if decodeErr != nil {
+		http.Error(w, decodeErr.Error(), http.StatusBadRequest)
 		return
 	}
-	var i Todo
-	i.Title = "Thomas"
-	i.Complete = false
-	err := service.Insert(ctx, i)
+
+	id, err := service.Insert(ctx, &p)
+	if err != nil {
+		responseError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	responseOk(w, id)
+}
+
+//TodoPut handles the Todo PUT request
+func TodoPut(w http.ResponseWriter, r *http.Request, handler *todoHandler) {
+	ctx := db.SetRepository(r.Context(), handler.samples)
+
+	var p schema.Todo
+	decodeErr := json.NewDecoder(r.Body).Decode(&p)
+	if decodeErr != nil {
+		http.Error(w, decodeErr.Error(), http.StatusBadRequest)
+		return
+	}
+
+	err := service.Update(ctx, &p)
 	if err != nil {
 		responseError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 
 	responseOk(w, nil)
-
 }
 
 func responseOk(w http.ResponseWriter, body interface{}) {
@@ -85,14 +116,4 @@ func responseError(w http.ResponseWriter, code int, message string) {
 		"error": message,
 	}
 	json.NewEncoder(w).Encode(body)
-}
-
-func enableCors(w *http.ResponseWriter) {
-	(*w).Header().Set("Access-Control-Allow-Origin", "*")
-}
-
-func setupResponse(w *http.ResponseWriter, req *http.Request) {
-	(*w).Header().Set("Access-Control-Allow-Origin", "*")
-	(*w).Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
-	(*w).Header().Set("Access-Control-Allow-Headers", "Accept, Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization")
 }
